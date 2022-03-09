@@ -1,47 +1,34 @@
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class App {
+
+    //xjc .\OSMSchema.xsd
+
+    static final String archiveName = "assets/RU-NVS.osm.bz2";
+    static final String xmlName = "data.xml";
+
     public static void main(String[] args) throws IOException, XMLStreamException, JAXBException {
+
+//        Archiver.decompressBz2(archiveName, xmlName);
+//        Map<String, Integer> uniqueAttributes =  XmlToMapExtractor.countUniqueAttributes(
+//                xmlName,
+//                "node",
+//                Arrays.asList("way", "relation"),
+//                8,
+//                4
+//        );
 //
-//        final Logger logger = LogManager.getRootLogger();
-//
-//        final Map<String, Integer> userCount = new HashMap<>();
-//
-//        System.out.println("Start process");
-////        Archiver.decompressBz2("assets/RU-NVS.osm.bz2", "data.xml");
-//        System.out.println("Finish process");
-//
-//        try (StaxStreamProcessor processor = new StaxStreamProcessor(Files.newInputStream(Paths.get("data.xml")))) {
-//            XMLStreamReader reader = processor.getReader();
-//            while (reader.hasNext()) {       // while not end of XML
-//                int event = reader.next();   // read next event
-//                if (event == XMLEvent.START_ELEMENT && "node".equals(reader.getLocalName()) && reader.getAttributeCount() == 8) {
-//                    String currentName = reader.getAttributeValue(4);
-//                    if (userCount.containsKey(currentName)) {
-//                        userCount.put(currentName, userCount.get(currentName) + 1);
-//                    } else {
-//                        userCount.put(currentName, 0);
-//                    }
-//                }
-//            }
-//        }
-//
-//        final Map<String, Integer> result = MapUtil.sortByValue(userCount);
-//        System.out.println(result.entrySet());
-//        System.out.println(result.size());
+//        System.out.println(uniqueAttributes.entrySet());
+//        System.out.println(uniqueAttributes.size());
+
+        JaxbProcessor jaxbParser = new JaxbProcessor();
+        Collection<org.openstreetmap.osm._0.Node> elements= jaxbParser.parse("data.xml");
+        for (org.openstreetmap.osm._0.Node element : elements) {
+            System.out.println(element.toString());
+        }
 
         MarshallProcessor.marshal("aaa.xml");
         Node restoredNode = MarshallProcessor.unmarshall("aaa.xml");

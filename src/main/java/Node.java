@@ -1,6 +1,6 @@
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement(name = "book")
+@XmlRootElement(name = "node")
 public class Node {
     private long id;
     private int version;
