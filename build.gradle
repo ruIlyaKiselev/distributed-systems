@@ -15,7 +15,6 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
     implementation 'org.apache.commons:commons-compress:1.21'
     implementation 'org.codehaus.woodstox:stax2-api:4.2.1'
-
 }
 
 test {
@@ -25,3 +24,5 @@ test {
 application {
     mainClass = 'App'
 }
+
+applicationDefaultJvmArgs = ["-Dlog4j2.configuration=file:src/main/resources/log4j.properties -Dlog4j2.debug=true"]

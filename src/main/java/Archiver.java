@@ -11,9 +11,9 @@ import java.util.Arrays;
 public class Archiver {
     public static void decompressBz2(String inputFile, String outputFile) {
 
-        final Logger logger = LogManager.getRootLogger();
+        final Logger log = LogManager.getRootLogger();
 
-        System.out.println("Start decompress");
+        log.info("Start decompress");
         try (
                 BZip2CompressorInputStream input = new BZip2CompressorInputStream(
                         new BufferedInputStream(
@@ -22,12 +22,12 @@ public class Archiver {
                 );
                 FileOutputStream output = new FileOutputStream(outputFile)
         ) {
-            System.out.println("Start copy");
+            log.info("Start copy");
             IOUtils.copy(input, output);
-            System.out.println("Finish copy");
+            log.info("Finish copy");
         } catch (Exception e) {
-            System.out.println(Arrays.toString(e.getStackTrace()));
+            log.error(e);
         }
-        System.out.println("Finish decompress");
+        log.info("Finish decompress");
     }
 }
