@@ -1,18 +1,23 @@
+import org.apache.log4j.Logger;
+
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
 public class StaxStreamProcessor implements AutoCloseable {
-    private static final XMLInputFactory FACTORY = XMLInputFactory.newInstance();
 
-    private final XMLStreamReader reader;
+    private static final Logger log = Logger.getLogger(StaxStreamProcessor.class);
+    private static final XMLInputFactory FACTORY = XMLInputFactory.newInstance();
+    private final XMLEventReader reader;
 
     public StaxStreamProcessor(InputStream is) throws XMLStreamException {
-        reader = FACTORY.createXMLStreamReader(is);
+        reader = FACTORY.createXMLEventReader(is);
+        log.info("Reader created");
     }
 
-    public XMLStreamReader getReader() {
+    public XMLEventReader getReader() {
         return reader;
     }
 
@@ -21,7 +26,10 @@ public class StaxStreamProcessor implements AutoCloseable {
         if (reader != null) {
             try {
                 reader.close();
-            } catch (XMLStreamException ignored) {}
+                log.info("Reader closed");
+            } catch (XMLStreamException e) {
+                log.error(e);
+            }
         }
     }
 }

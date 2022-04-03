@@ -26,14 +26,14 @@ public class OsmProcessingResult {
     }
 
     public void sortTagsKey() {
-        redactions = MapUtils.sortByValue(this.redactions);
+        tagKeys = MapUtils.sortByValue(this.tagKeys);
     }
 
     @Override
     public String toString() {
-        return "OsmProcessingResult{" +
-                "redactions=" + redactions +
-                ", tagKeys=" + tagKeys +
-                '}';
+        return "OsmProcessingResult:" +
+                "redaction: " + redactions +
+                "\n" +
+                "tagKeys: " + tagKeys;
     }
 }
