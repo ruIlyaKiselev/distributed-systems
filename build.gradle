@@ -10,6 +10,14 @@ repositories {
     mavenCentral()
 }
 
+project.ext {
+    jaxbTargetDir = file("src/main/java")
+}
+
+configurations {
+    xsd2java
+}
+
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'log4j:log4j:1.2.17'
@@ -19,11 +27,33 @@ dependencies {
 
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:3.0.2'
-
     annotationProcessor 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1'
     annotationProcessor 'org.glassfish.jaxb:jaxb-runtime:3.0.2'
     annotationProcessor 'javax.annotation:javax.annotation-api:1.3.2'
+
+    xsd2java "com.sun.xml.bind:jaxb-xjc:3.0.2"
+    xsd2java "com.sun.xml.bind:jaxb-impl:3.0.2"
+    xsd2java "com.sun.xml.bind:jaxb-core:3.0.2"
+    xsd2java "com.sun.activation:jakarta.activation:2.0.1"
+    xsd2java "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1"
 }
+
+task xsd2java() {
+
+    doLast {
+        jaxbTargetDir.mkdirs()
+
+        ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.xsd2java.asPath)
+        ant.jaxbTargetDir = jaxbTargetDir
+
+        ant.xjc(
+                destdir: '${jaxbTargetDir}',
+                schema: 'src/main/resources/OSMSchema.xsd'
+        )
+    }
+}
+
+compileJava.dependsOn xsd2java
 
 test {
     useJUnitPlatform()
