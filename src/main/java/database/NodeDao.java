@@ -20,7 +20,7 @@ public class NodeDao implements IDao {
 
     @Override
     public String getInsertStatement() {
-        return "insert into" + DatabaseContract.Node.tableName + "(" +
+        return "INSERT INTO " + DatabaseContract.Node.tableName + " (" +
                     DatabaseContract.Node.columnNameId + ", " +
                     DatabaseContract.Node.columnNameVersion + ", " +
                     DatabaseContract.Node.columnNameTimestamp + ", " +
@@ -30,29 +30,28 @@ public class NodeDao implements IDao {
                     DatabaseContract.Node.columnNameLat + ", " +
                     DatabaseContract.Node.columnNameLon +
                 ") " +
-                "values (" +
+                "VALUES (" +
                     node.getId() + ", " +
-                    node.getLat() + ", " +
-                    node.getLon() + ", '" +
-                    node.getUser().replace('\'', '\\') + "', " +
-                    node.getUid() + ", " +
-                    node.isVisible() + ", " +
                     node.getVersion() + ", " +
+                    "'" + convertTimestamp(node.getTimestamp()) + "'" + ", " +
+                    node.getUid() + ", " +
+                    "'" + node.getUser().replace('\'', '\\') + "'" + ", " +
                     node.getChangeset() + ", " +
-                    convertTimestamp(node.getTimestamp()) +
-                "')";
+                    node.getLat() + ", " +
+                    node.getLon() +
+                ")";
     }
 
     @Override
     public PreparedStatement getPreparedStatement() throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatementPattern());
 
-        preparedStatement.setInt(DatabaseContract.Node.columnIndexId, node.getId().intValue());
-        preparedStatement.setInt(DatabaseContract.Node.columnIndexVersion, node.getVersion().intValue());
+        preparedStatement.setLong(DatabaseContract.Node.columnIndexId, node.getId().longValue());
+        preparedStatement.setLong(DatabaseContract.Node.columnIndexVersion, node.getVersion().longValue());
         preparedStatement.setTimestamp(DatabaseContract.Node.columnIndexTimestamp, convertTimestamp(node.getTimestamp()));
-        preparedStatement.setInt(DatabaseContract.Node.columnIndexUid, node.getUid().intValue());
+        preparedStatement.setLong(DatabaseContract.Node.columnIndexUid, node.getUid().longValue());
         preparedStatement.setString(DatabaseContract.Node.columnIndexUser, node.getUser());
-        preparedStatement.setInt(DatabaseContract.Node.columnIndexChangeSet, node.getChangeset().intValue());
+        preparedStatement.setLong(DatabaseContract.Node.columnIndexChangeSet, node.getChangeset().longValue());
         preparedStatement.setDouble(DatabaseContract.Node.columnIndexLat, node.getLat());
         preparedStatement.setDouble(DatabaseContract.Node.columnIndexLon, node.getLon());
 
@@ -61,7 +60,7 @@ public class NodeDao implements IDao {
 
     @Override
     public String getInsertStatementPattern() {
-        return "insert into" + DatabaseContract.Node.tableName + "(" +
+        return "INSERT INTO " + DatabaseContract.Node.tableName + " (" +
                     DatabaseContract.Node.columnNameId + ", " +
                     DatabaseContract.Node.columnNameVersion + ", " +
                     DatabaseContract.Node.columnNameTimestamp + ", " +
@@ -71,8 +70,7 @@ public class NodeDao implements IDao {
                     DatabaseContract.Node.columnNameLat + ", " +
                     DatabaseContract.Node.columnNameLon +
                 ") " +
-                "values (" +
-                    "?, " +
+                "VALUES (" +
                     "?, " +
                     "?, " +
                     "?, " +

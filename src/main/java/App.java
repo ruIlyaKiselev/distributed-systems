@@ -1,3 +1,5 @@
+import database.DatabaseProvider;
+import database.DatabaseStrategy;
 import org.apache.log4j.Logger;
 
 public class App {
@@ -13,9 +15,17 @@ public class App {
 //        Archiver.decompressBz2(archiveFileName, xmlFileName);
 
         final OsmParser osmParser = new OsmParser();
-        OsmProcessingResult osmProcessingResult = osmParser.parse(xmlFileName);
+        final DatabaseProvider databaseProvider = new DatabaseProvider();
+
+        OsmProcessingResult osmProcessingResult = osmParser.parse(
+                xmlFileName,
+                databaseProvider,
+                DatabaseStrategy.preparedStatement
+        );
+
         osmProcessingResult.sortRedactions();
         osmProcessingResult.sortTagsKey();
+
         log.info(osmProcessingResult);
         log.info("Finish process");
     }
