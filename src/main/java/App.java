@@ -20,7 +20,7 @@ public class App {
         OsmProcessingResult osmProcessingResult = osmParser.parse(
                 xmlFileName,
                 databaseProvider,
-                DatabaseStrategy.preparedStatement
+                DatabaseStrategy.batch
         );
 
         osmProcessingResult.sortRedactions();
