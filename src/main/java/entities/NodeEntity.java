@@ -1,6 +1,7 @@
 package entities;
 
 import database.DatabaseContract;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = DatabaseContract.Node.tableName)
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class NodeEntity {
 
     @Id
