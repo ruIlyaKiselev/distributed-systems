@@ -6,5 +6,6 @@ import java.sql.SQLException;
 interface IDao {
     String getInsertStatement();
     String getInsertStatementPattern();
-    PreparedStatement getPreparedStatement() throws SQLException;
+    PreparedStatement getPreparedStatement();
+
 }

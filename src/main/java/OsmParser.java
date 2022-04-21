@@ -18,7 +18,9 @@ public class OsmParser {
     public OsmProcessingResult parse(
             String fileName,
             DatabaseProvider databaseProvider,
-            DatabaseStrategy databaseStrategy
+            DatabaseStrategy databaseStrategy,
+            long batchStep,
+            long parsingLimit
     ) {
         final OsmProcessingResult osmProcessingResult = new OsmProcessingResult();
 
@@ -40,7 +42,9 @@ public class OsmParser {
                     is,
                     osmProcessingResult,
                     databaseProvider,
-                    databaseStrategy
+                    databaseStrategy,
+                    batchStep,
+                    parsingLimit
             );
         } catch (FileNotFoundException ignored) {}
 
@@ -51,14 +55,27 @@ public class OsmParser {
             InputStream inputStream,
             OsmProcessingResult osmProcessingResult,
             DatabaseProvider databaseProvider,
-            DatabaseStrategy databaseStrategy
+            DatabaseStrategy databaseStrategy,
+            long batchStep,
+            long parsingLimit
     ) {
         long insertTime = 0;
+        long iterationCounter = 0;
+        long batchCounter = 0;
 
         try (StaxStreamProcessor processor = new StaxStreamProcessor(inputStream)) {
             logger.info("Start osm parsing");
 
             while (true) {
+                iterationCounter++;
+                batchCounter++;
+                if (iterationCounter > parsingLimit) {
+                    logger.info("Finish osm parsing");
+                    logger.info("Insert time: " + insertTime + "; databaseStrategy: " + databaseStrategy + " parsingLimit: " + parsingLimit);
+                    logger.info("Time per iteration: " + insertTime / iterationCounter);
+                    break;
+                }
+
                 Node node = processor.nextNode();
 
                 if (node == null) {
@@ -84,14 +101,19 @@ public class OsmParser {
                 }
             }
 
-            if (databaseStrategy.equals(batch)) {
-                insertTime += databaseProvider.executeBatch();
+            if (batchCounter >= batchStep) {
+                if (databaseStrategy.equals(batch)) {
+                    insertTime += databaseProvider.executeBatch();
+                }
             }
-
-            logger.info("Finish osm parsing");
-            logger.info("Insert time: " + insertTime + "; databaseStrategy: " + databaseStrategy);
         } catch (Exception e) {
             logger.error(e);
+        } finally {
+            if (databaseStrategy.equals(batch)) {
+                insertTime += databaseProvider.executeBatch();
+                logger.info("Finish osm parsing");
+                logger.info("Insert time: " + insertTime + "; databaseStrategy: " + databaseStrategy);
+            }
         }
     }
 

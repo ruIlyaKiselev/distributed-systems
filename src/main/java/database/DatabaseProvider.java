@@ -5,8 +5,6 @@ import generated.Tag;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseProvider {
 
@@ -14,6 +12,8 @@ public class DatabaseProvider {
 
     private Connection connection;
     private Statement batchStatement = null;
+    NodeDao nodeDao;
+    TagDao tagDao;
 
     private Connection getConnection() {
         return connection;
@@ -22,7 +22,7 @@ public class DatabaseProvider {
     public DatabaseProvider() {
         createConnection();
         try {
-            createBatchConnection();
+            initBatchConnection();
         } catch (SQLException e) {
             logger.error(e);
         }
@@ -46,8 +46,10 @@ public class DatabaseProvider {
         }
     }
 
-    private void createBatchConnection() throws SQLException {
+    private void initBatchConnection() throws SQLException {
         batchStatement = connection.createStatement();
+        nodeDao = new NodeDao(connection);
+        tagDao = new TagDao(connection);
     }
 
     public void createTables() throws SQLException {
@@ -111,7 +113,7 @@ public class DatabaseProvider {
 
     public long insertByStatement(Node node) {
         try {
-            long startTime = System.nanoTime();
+            long startTime = System.currentTimeMillis();
 
             NodeDao nodeDao = new NodeDao(connection, node);
             connection.createStatement().execute(nodeDao.getInsertStatement());
@@ -122,7 +124,7 @@ public class DatabaseProvider {
             }
 
             connection.commit();
-            return System.nanoTime() - startTime;
+            return System.currentTimeMillis() - startTime;
         } catch (SQLException e) {
             logger.error(e.getMessage());
             return -1;
@@ -131,17 +133,15 @@ public class DatabaseProvider {
 
     public long insertByPreparedStatement(Node node) {
         try {
-            long startTime = System.nanoTime();
-            NodeDao nodeDao = new NodeDao(connection, node);
-            nodeDao.getPreparedStatement().execute();
+            long startTime = System.currentTimeMillis();
+            nodeDao.executePreparedStatement(node);
 
             for (Tag tag : node.getTag()) {
-                TagDao tagDao = new TagDao(connection, node.getId().longValue(), tag);
-                tagDao.getPreparedStatement().execute();
+                tagDao.executePreparedStatement(node.getId().longValue(), tag);
             }
 
             connection.commit();
-            return System.nanoTime() - startTime;
+            return System.currentTimeMillis() - startTime;
         } catch (SQLException e) {
             logger.error(e.getMessage());
             return -1;
@@ -165,12 +165,12 @@ public class DatabaseProvider {
 
     public long executeBatch() {
         try {
-            long startTime = System.nanoTime();
+            long startTime = System.currentTimeMillis();
 
             batchStatement.executeBatch();
             connection.commit();
 
-            return System.nanoTime() - startTime;
+            return System.currentTimeMillis() - startTime;
         } catch (SQLException e) {
             logger.error(e.getMessage());
             return -1;

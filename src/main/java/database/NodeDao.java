@@ -12,10 +12,16 @@ public class NodeDao implements IDao {
 
     private final Connection connection;
     private final Node node;
+    private PreparedStatement preparedStatement = null;
 
     public NodeDao(Connection connection, Node node) {
         this.connection = connection;
         this.node = node;
+    }
+
+    public NodeDao(Connection connection) {
+        this.connection = connection;
+        node = new Node();
     }
 
     @Override
@@ -43,17 +49,14 @@ public class NodeDao implements IDao {
     }
 
     @Override
-    public PreparedStatement getPreparedStatement() throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatementPattern());
-
-        preparedStatement.setLong(DatabaseContract.Node.columnIndexId, node.getId().longValue());
-        preparedStatement.setLong(DatabaseContract.Node.columnIndexVersion, node.getVersion().longValue());
-        preparedStatement.setTimestamp(DatabaseContract.Node.columnIndexTimestamp, convertTimestamp(node.getTimestamp()));
-        preparedStatement.setLong(DatabaseContract.Node.columnIndexUid, node.getUid().longValue());
-        preparedStatement.setString(DatabaseContract.Node.columnIndexUser, node.getUser());
-        preparedStatement.setLong(DatabaseContract.Node.columnIndexChangeSet, node.getChangeset().longValue());
-        preparedStatement.setDouble(DatabaseContract.Node.columnIndexLat, node.getLat());
-        preparedStatement.setDouble(DatabaseContract.Node.columnIndexLon, node.getLon());
+    public PreparedStatement getPreparedStatement() {
+        if (preparedStatement == null) {
+            try {
+                preparedStatement = connection.prepareStatement(getInsertStatementPattern());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         return preparedStatement;
     }
@@ -80,6 +83,24 @@ public class NodeDao implements IDao {
                     "?, " +
                     "?" +
                 ")";
+    }
+    public void executePreparedStatement(Node node) {
+        try {
+            if (preparedStatement == null) {
+                getPreparedStatement();
+            }
+            preparedStatement.setLong(DatabaseContract.Node.columnIndexId, node.getId().longValue());
+            preparedStatement.setLong(DatabaseContract.Node.columnIndexVersion, node.getVersion().longValue());
+            preparedStatement.setTimestamp(DatabaseContract.Node.columnIndexTimestamp, convertTimestamp(node.getTimestamp()));
+            preparedStatement.setLong(DatabaseContract.Node.columnIndexUid, node.getUid().longValue());
+            preparedStatement.setString(DatabaseContract.Node.columnIndexUser, node.getUser());
+            preparedStatement.setLong(DatabaseContract.Node.columnIndexChangeSet, node.getChangeset().longValue());
+            preparedStatement.setDouble(DatabaseContract.Node.columnIndexLat, node.getLat());
+            preparedStatement.setDouble(DatabaseContract.Node.columnIndexLon, node.getLon());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Timestamp convertTimestamp(XMLGregorianCalendar data) {
